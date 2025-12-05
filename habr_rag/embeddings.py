@@ -4,10 +4,6 @@ import requests
 from langchain_core.embeddings import Embeddings
 
 class CustomBGEEmbeddings(Embeddings):
-    """
-    Custom embeddings class for BGE-M3 model.
-    """
-
     def __init__(self, api_key: str, base_url: str, model: str = "bge-m3"):
         self.api_key = api_key
         self.endpoint_url = f"{base_url.rstrip('/')}/embeddings"
@@ -36,9 +32,9 @@ class CustomBGEEmbeddings(Embeddings):
                 raise ValueError(f"Unexpected API response format: {data.keys()}")
                 
         except requests.exceptions.RequestException as e:
-            print(f"Embedding API Error: {e}")
-            if hasattr(e.response, "text"):
-                print(f"Response text: {e.response.text}")
+            # print(f"Embedding API Error: {e}")
+            # if hasattr(e.response, "text"):
+            #     print(f"Response text: {e.response.text}")
             raise
 
     def embed_documents(self, texts: List[str]) -> List[List[float]]:

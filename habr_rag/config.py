@@ -1,8 +1,9 @@
 import os
 from pathlib import Path
+
 from dotenv import load_dotenv
 
-load_dotenv()
+load_dotenv(dotenv_path="../.env")
 
 # Paths
 PROJECT_ROOT = Path(__file__).parent.parent
@@ -15,6 +16,9 @@ RESULTS_DIR = DATA_DIR / "results"
 CHUNKS_FILE = PROCESSED_DATA_DIR / "chunked_docs.pkl"
 SINGLE_HOP_DATASET = DATASETS_DIR / "dataset_single_hop.json"
 MULTI_HOP_DATASET = DATASETS_DIR / "dataset_multi_hop.json"
+# Тестовые датасеты (создаются скриптом create_test_collection.py)
+TEST_SINGLE_HOP_DATASET = DATASETS_DIR / "test_single_hop.json"
+TEST_MULTI_HOP_DATASET = DATASETS_DIR / "test_multi_hop.json"
 META_COLS_FILE = RAW_DATA_DIR / "meta_cols.csv"
 
 EVAL_RESULTS_FILE = RESULTS_DIR / "evaluation_results_retrieval.json"
@@ -23,7 +27,6 @@ EVAL_METRICS_FILE = RESULTS_DIR / "evaluation_metrics_retrieval.csv"
 # Qdrant Configuration
 QDRANT_URL = os.getenv(
     "QDRANT_URL",
-    "https://590d8b86-25a0-42c7-bf89-43a3fe0387ac.eu-central-1-0.aws.cloud.qdrant.io:6333",
 )
 QDRANT_API_KEY = os.getenv("QDRANT_API_KEY")
 COLLECTION_PREFIX = "habr_rag_bge_m3"
@@ -40,4 +43,3 @@ MAX_CHUNKS_TO_UPLOAD = 5000000
 
 # Generation Configuration
 MODEL_NAME = "gpt-5.1-2025-11-13"
-

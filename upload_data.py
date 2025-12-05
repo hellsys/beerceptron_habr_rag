@@ -4,69 +4,21 @@ import datetime
 import json
 import os
 import pickle
+import sys
+from pathlib import Path
 from typing import List
 
-import requests
+sys.path.append(str(Path(__file__).parent))
+
 from dotenv import load_dotenv
-from langchain_core.embeddings import Embeddings
 from langchain_qdrant import QdrantVectorStore
 from qdrant_client import QdrantClient
 from qdrant_client.http import models
 from tqdm.asyncio import tqdm
 
+from habr_rag.embeddings import CustomBGEEmbeddings
+
 load_dotenv()
-
-
-class CustomBGEEmbeddings(Embeddings):
-    """
-    Custom embeddings class using `requests` directly.
-    Replicates the working curl/requests example exactly, bypassing openai library issues.
-    """
-
-    def __init__(self, api_key: str, base_url: str, model: str = "bge-m3"):
-        self.api_key = api_key
-
-        self.endpoint_url = f"{base_url.rstrip('/')}/embeddings"
-        self.model = model
-
-    def _embed(self, texts: List[str]) -> List[List[float]]:
-        """Call the embeddings API using requests."""
-        headers = {
-            "Content-Type": "application/json",
-            "Authorization": f"Bearer {self.api_key}",
-        }
-
-        payload = {
-            "model": self.model,
-            "input": texts,
-        }
-
-        try:
-            response = requests.post(
-                self.endpoint_url, headers=headers, json=payload, timeout=120
-            )
-            response.raise_for_status()
-            data = response.json()
-
-            if "data" in data:
-                sorted_data = sorted(data["data"], key=lambda x: x["index"])
-                return [item["embedding"] for item in sorted_data]
-            else:
-                raise ValueError(f"Unexpected API response format: {data.keys()}")
-
-        except requests.exceptions.HTTPError as e:
-            print(f"\nAPI Error: {e}")
-            print(f"Response text: {response.text}")
-            raise
-
-    def embed_documents(self, texts: List[str]) -> List[List[float]]:
-        """Embed a list of documents."""
-        return self._embed(texts)
-
-    def embed_query(self, text: str) -> List[float]:
-        """Embed a single query."""
-        return self._embed([text])[0]
-
 
 script_dir = os.path.dirname(os.path.abspath(__file__))
 parent_dir = os.path.dirname(script_dir)
@@ -92,7 +44,6 @@ def load_chunks(filepath):
 
 
 def load_dataset_article_ids():
-    """Load article IDs and chunk IDs from synthetic datasets."""
     article_ids = set()
     chunk_ids = set()
 
@@ -131,10 +82,6 @@ def load_dataset_article_ids():
 
 
 def prioritize_chunks(docs, dataset_article_ids):
-    """
-    Split documents into priority (from datasets) and remaining.
-    Returns (priority_docs, remaining_docs)
-    """
     priority_docs = []
     remaining_docs = []
 
@@ -182,7 +129,6 @@ async def main():
     )
     args = parser.parse_args()
 
-    # Initialize embeddings
     embeddings = CustomBGEEmbeddings(
         api_key=os.getenv("OPENAI_API_KEY"),
         base_url="https://gpt.mwsapis.ru/projects/mws-ai-automation/openai/v1",
