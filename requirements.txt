@@ -1,0 +1,15 @@
+pandas
+openai
+tqdm
+python-dotenv
+langchain
+qdrant-client
+langchain-qdrant
+langchain-openai
+langchain-mistralai
+langchain-huggingface
+sentence-transformers
+einops
+regex
+overrides
+requests
