@@ -1,0 +1,7 @@
+fastapi 
+uvicorn 
+openai
+qdrant-client
+pydantic
+langchain
+langchain_openai

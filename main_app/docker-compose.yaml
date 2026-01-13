@@ -1,0 +1,32 @@
+version: "3.9"
+
+services:
+
+  api:
+    build: ./server
+    container_name: rag_api
+    env_file:
+      - .env
+    ports:
+      - "8000:8000"
+    networks:
+      - rag_net
+    volumes:
+      - ./server/logs:/app/logs
+    user: "${UID}:${GID}"
+
+  ui:
+    build: ./ui
+    container_name: rag_ui
+    ports:
+      - "8501:8501"
+    depends_on:
+      - api
+    environment:
+      - API_URL=http://api:8000/
+    networks:
+      - rag_net
+
+networks:
+  rag_net:
+    driver: bridge
